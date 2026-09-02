@@ -1,0 +1,36 @@
+name: Render Cartoon V2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  render-v2:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install rendering tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install Pillow
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng
+
+      - name: Render Cartoon V2
+        run: python v2/studio_v2.py
+
+      - name: Upload V2 videos
+        uses: actions/upload-artifact@v4
+        with:
+          name: AllSortsHub-Episode-01-V2
+          path: output_v2/*.mp4
+          if-no-files-found: error
+          retention-days: 14

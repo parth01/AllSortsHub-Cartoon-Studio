@@ -1,0 +1,17 @@
+{
+  "title": "The Guy Who Got $1 Billion for One Day",
+  "format": "16:9",
+  "fps": 30,
+  "scenes": [
+    {"duration":4,"background":"bedroom","characters":[{"name":"Ravi","x":850,"y":500,"scale":1.1,"mood":"normal"}],"title":"THE $1 BILLION MISTAKE"},
+    {"duration":6,"background":"bedroom","characters":[{"name":"Ravi","x":850,"y":500,"scale":1.1,"mood":"shocked"}],"prop":"$1,000,000,000","subtitle":"Ravi: Okay... either I'm a billionaire, or my bank has completely lost it."},
+    {"duration":6,"background":"bedroom","characters":[{"name":"Ravi","x":650,"y":500,"scale":1.0,"mood":"happy"},{"name":"Max","x":1250,"y":500,"scale":1.0,"mood":"shocked"}],"subtitle":"Max: DO NOT SPEND IT. Ravi: Too late. I just ordered a mansion."},
+    {"duration":7,"background":"city","characters":[{"name":"Ravi","x":700,"y":470,"scale":1.0,"mood":"happy"}],"prop":"MANSION + CAR + JET","subtitle":"Ravi: Mansion? Bought. Sports car? Bought. Private jet? Absolutely bought."},
+    {"duration":6,"background":"street","characters":[{"name":"Ravi","x":950,"y":470,"scale":1.0,"mood":"happy"},{"name":"Max","x":1400,"y":500,"scale":0.9,"mood":"shocked"}],"subtitle":"Max: You spent HOW much? Ravi: Relax. I still have... nine hundred million."},
+    {"duration":6,"background":"bank","characters":[{"name":"Ravi","x":850,"y":500,"scale":1.0,"mood":"shocked"}],"prop":"BALANCE: $47.32","subtitle":"Bank: Your $1 billion deposit was an error. The funds will be reversed."},
+    {"duration":7,"background":"street","characters":[{"name":"Ravi","x":650,"y":480,"scale":1.0,"mood":"shocked"},{"name":"Max","x":1250,"y":500,"scale":1.0,"mood":"normal"}],"subtitle":"Ravi: Maybe I can return the jet? Max: You can't return a jet, Ravi."},
+    {"duration":6,"background":"bedroom","characters":[{"name":"Ravi","x":850,"y":500,"scale":1.1,"mood":"normal"}],"prop":"BALANCE: $47.32","subtitle":"Ravi: Fine. At least I still have forty-seven dollars."},
+    {"duration":5,"background":"bedroom","characters":[{"name":"Ravi","x":850,"y":500,"scale":1.1,"mood":"shocked"}],"prop":"-$47.32","subtitle":"BANK: Monthly account fee applied. Ravi: ...I hate banks."},
+    {"duration":5,"background":"bedroom","characters":[{"name":"Ravi","x":850,"y":500,"scale":1.1,"mood":"happy"}],"title":"24 HOURS LATER...","subtitle":"Narrator: Ravi's bank account survived for 24 hours. His dignity did not."}
+  ]
+}
