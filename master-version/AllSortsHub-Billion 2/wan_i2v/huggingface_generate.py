@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """Generate Wan 2.2 I2V clips through a public Hugging Face ZeroGPU Space.
 
-This version intentionally uses a public Space instead of Replicate, so the
-GitHub Actions workflow does not need a paid API token. The Space currently
-used is a public Wan 2.2 14B Lightning Space with 4-8 step inference.
-
-The free Hugging Face ZeroGPU quota is limited, so test3 should be used first.
+This uses the Space's direct runtime hostname rather than the Hub page URL.
+That is important for programmatic Gradio access from GitHub Actions.
 """
 from __future__ import annotations
 
@@ -13,12 +10,11 @@ import json
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
-from urllib.parse import urlparse
 from urllib.request import urlopen
 
-SPACE = "https://huggingface.co/spaces/Saravutw/WAN2.2_I2V_LIGHTNING_4-8step_custom"
+# Direct Gradio runtime endpoint for the public Space.
+SPACE = "https://saravutw-wan2-2-i2v-lightning-4-8step-custom.hf.space"
 API_NAME = "/generate_video"
 ROOT = Path(__file__).resolve().parents[1]
 GEN = ROOT / "wan_i2v" / "generated"
@@ -64,7 +60,7 @@ def find_video(value):
     """Find a generated video path/URL in a Gradio result."""
     if isinstance(value, (str, Path)):
         text = str(value)
-        if text.startswith("http://") or text.startswith("https://"):
+        if text.startswith(("http://", "https://")):
             return text
         if Path(text).exists():
             return text
@@ -82,7 +78,7 @@ def find_video(value):
     return None
 
 
-def copy_result(result, out: Path, client):
+def copy_result(result, out: Path):
     video = find_video(result)
     if not video:
         fail(f"Hugging Face Space returned no video file: {result!r}")
@@ -100,9 +96,8 @@ def generate(client, image: Path, prompt: str, duration: float, out: Path, seed:
         print(f"  exists: {out.name}; skipping", flush=True)
         return
 
-    # The public Lightning Space accepts 4-8 inference steps. Four steps are
-    # deliberately used here to minimize ZeroGPU time and make free testing
-    # practical. The Space runs at 16 FPS and supports up to 10 seconds.
+    # The Space accepts 4-8 inference steps and outputs at 16 FPS.
+    # Four steps minimize shared ZeroGPU time for testing.
     duration = max(0.5, min(float(duration), 10.0))
     print(f"  starting Hugging Face ZeroGPU generation -> {out.name} ({duration:.2f}s)", flush=True)
 
@@ -127,7 +122,7 @@ def generate(client, image: Path, prompt: str, duration: float, out: Path, seed:
         True,
         api_name=API_NAME,
     )
-    copy_result(result, out, client)
+    copy_result(result, out)
     print(f"  downloaded {out.name} ({out.stat().st_size} bytes)", flush=True)
 
 
@@ -155,7 +150,7 @@ def main() -> None:
         fail("gradio_client is not installed")
 
     GEN.mkdir(parents=True, exist_ok=True)
-    print(f"Connecting to public Hugging Face Space: {SPACE}", flush=True)
+    print(f"Connecting to public Hugging Face Space runtime: {SPACE}", flush=True)
     print(f"Generating {len(shots)} shot(s) in {mode} mode", flush=True)
     client = Client(SPACE, verbose=True)
 
