@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
-"""Generate Wan 2.2 I2V clips through a public Hugging Face ZeroGPU Space.
-
-This uses the Space's direct runtime hostname rather than the Hub page URL.
-That is important for programmatic Gradio access from GitHub Actions.
-"""
+"""Generate Wan 2.2 I2V clips through a public Hugging Face ZeroGPU Space."""
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 from urllib.request import urlopen
 
-# Direct Gradio runtime endpoint for the public Space.
 SPACE = "https://saravutw-wan2-2-i2v-lightning-4-8step-custom.hf.space"
 API_NAME = "/generate_video"
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,7 +53,6 @@ def prompt_for(shot_id: int, prompts_text: str) -> str:
 
 
 def find_video(value):
-    """Find a generated video path/URL in a Gradio result."""
     if isinstance(value, (str, Path)):
         text = str(value)
         if text.startswith(("http://", "https://")):
@@ -95,14 +90,9 @@ def generate(client, image: Path, prompt: str, duration: float, out: Path, seed:
     if out.exists() and out.stat().st_size > 10000:
         print(f"  exists: {out.name}; skipping", flush=True)
         return
-
-    # The Space accepts 4-8 inference steps and outputs at 16 FPS.
-    # Four steps minimize shared ZeroGPU time for testing.
     duration = max(0.5, min(float(duration), 10.0))
     print(f"  starting Hugging Face ZeroGPU generation -> {out.name} ({duration:.2f}s)", flush=True)
-
     from gradio_client import handle_file
-
     result = client.predict(
         handle_file(str(image)),
         handle_file(str(last_image)) if last_image else None,
@@ -149,10 +139,14 @@ def main() -> None:
     except ImportError:
         fail("gradio_client is not installed")
 
+    token = os.environ.get("HF_TOKEN", "").strip()
+    if not token:
+        fail("HF_TOKEN is missing. Add the free Hugging Face token as a GitHub Actions secret named HF_TOKEN.")
+
     GEN.mkdir(parents=True, exist_ok=True)
-    print(f"Connecting to public Hugging Face Space runtime: {SPACE}", flush=True)
+    print(f"Connecting to authenticated Hugging Face Space runtime: {SPACE}", flush=True)
     print(f"Generating {len(shots)} shot(s) in {mode} mode", flush=True)
-    client = Client(SPACE, verbose=True)
+    client = Client(SPACE, hf_token=token, verbose=True)
 
     for shot in shots:
         n = int(shot["id"])
@@ -162,7 +156,6 @@ def main() -> None:
             fail(f"Missing storyboard image: {image}")
         prompt = prompt_for(n, prompts_text)
         seed = 910000 + n
-
         first_duration = min(duration, 5.0)
         first = GEN / f"shot_{n:02d}a.mp4" if duration > 5 else GEN / f"shot_{n:02d}.mp4"
         generate(client, image, prompt, first_duration, first, seed)
