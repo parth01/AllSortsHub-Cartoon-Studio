@@ -4,13 +4,24 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Generate first 3 shots for testing, or the complete 17-shot episode
+        description: Generate a small test, selected shot range, or the complete 17-shot episode
         required: true
-        default: test3
+        default: range
         type: choice
         options:
           - test3
+          - range
           - full
+      shot_start:
+        description: First shot to generate when mode is range (1-17)
+        required: false
+        default: "1"
+        type: string
+      shot_end:
+        description: Last shot to generate when mode is range (1-17)
+        required: false
+        default: "1"
+        type: string
 
 permissions:
   contents: read
@@ -40,16 +51,35 @@ jobs:
         working-directory: master-version/AllSortsHub-Billion 2
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          SHOT_START: ${{ inputs.shot_start }}
+          SHOT_END: ${{ inputs.shot_end }}
         run: python3 wan_i2v/huggingface_generate.py ${{ inputs.mode }}
 
-      - name: Assemble generated animation with audio and captions
+      - name: Upload generated clips
+        uses: actions/upload-artifact@v4
+        with:
+          name: AllSortsHub-Episode-01-Wan-Shots-${{ inputs.shot_start }}-${{ inputs.shot_end }}
+          path: master-version/AllSortsHub-Billion 2/wan_i2v/generated/*.mp4
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Assemble selected shots for review
+        if: inputs.mode == 'range'
         working-directory: master-version/AllSortsHub-Billion 2
-        run: |
-          if [ "${{ inputs.mode }}" = "test3" ]; then
-            python3 wan_i2v/assemble_test3.py
-          else
-            python3 wan_i2v/assemble_episode.py
-          fi
+        env:
+          SHOT_START: ${{ inputs.shot_start }}
+          SHOT_END: ${{ inputs.shot_end }}
+        run: python3 wan_i2v/assemble_range.py
+
+      - name: Assemble first 3 shots for review
+        if: inputs.mode == 'test3'
+        working-directory: master-version/AllSortsHub-Billion 2
+        run: python3 wan_i2v/assemble_test3.py
+
+      - name: Assemble complete episode
+        if: inputs.mode == 'full'
+        working-directory: master-version/AllSortsHub-Billion 2
+        run: python3 wan_i2v/assemble_episode.py
 
       - name: Validate outputs
         working-directory: master-version/AllSortsHub-Billion 2/output
@@ -57,25 +87,18 @@ jobs:
           set -e
           if [ "${{ inputs.mode }}" = "test3" ]; then
             test -s AllSortsHub_Episode_01_WAN_TEST3.mp4
+          elif [ "${{ inputs.mode }}" = "range" ]; then
+            test -s AllSortsHub_Episode_01_WAN_RANGE_${{ inputs.shot_start }}_${{ inputs.shot_end }}.mp4
           else
             test -s AllSortsHub_Episode_01_WAN_MASTER.mp4
             test -s AllSortsHub_Episode_01_WAN_VERTICAL_9x16.mp4
           fi
           ls -lh *.mp4
 
-      - name: Upload final video artifact
+      - name: Upload review video
         uses: actions/upload-artifact@v4
         with:
-          name: AllSortsHub-Episode-01-Wan-${{ inputs.mode }}
+          name: AllSortsHub-Episode-01-Wan-Review-${{ inputs.mode }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
           path: master-version/AllSortsHub-Billion 2/output/*.mp4
           if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload generated clips for debugging
-        if: always() && inputs.mode == 'test3'
-        uses: actions/upload-artifact@v4
-        with:
-          name: AllSortsHub-Episode-01-Wan-Test3-Clips
-          path: master-version/AllSortsHub-Billion 2/wan_i2v/generated/*.mp4
-          if-no-files-found: ignore
-          retention-days: 7
+          retention-days: 30
