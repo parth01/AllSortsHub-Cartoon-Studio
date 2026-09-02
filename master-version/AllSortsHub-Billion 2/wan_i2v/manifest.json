@@ -1,0 +1,26 @@
+{
+  "episode": "The Guy Who Got $1 Billion for One Day",
+  "fps": 16,
+  "target_width": 832,
+  "target_height": 480,
+  "generation_clip_seconds": 5,
+  "shots": [
+    {"id":1,"duration":9,"image":"01_storyboard/shot_01.jpg","prompt":"shot_01"},
+    {"id":2,"duration":10,"image":"01_storyboard/shot_02.jpg","prompt":"shot_02"},
+    {"id":3,"duration":5,"image":"01_storyboard/shot_03.jpg","prompt":"shot_03"},
+    {"id":4,"duration":9,"image":"01_storyboard/shot_04.jpg","prompt":"shot_04"},
+    {"id":5,"duration":9,"image":"01_storyboard/shot_05.jpg","prompt":"shot_05"},
+    {"id":6,"duration":8,"image":"01_storyboard/shot_06.jpg","prompt":"shot_06"},
+    {"id":7,"duration":9,"image":"01_storyboard/shot_07.jpg","prompt":"shot_07"},
+    {"id":8,"duration":10,"image":"01_storyboard/shot_08.jpg","prompt":"shot_08"},
+    {"id":9,"duration":10,"image":"01_storyboard/shot_09.jpg","prompt":"shot_09"},
+    {"id":10,"duration":8,"image":"01_storyboard/shot_10.jpg","prompt":"shot_10"},
+    {"id":11,"duration":10,"image":"01_storyboard/shot_11.jpg","prompt":"shot_11"},
+    {"id":12,"duration":10,"image":"01_storyboard/shot_12.jpg","prompt":"shot_12"},
+    {"id":13,"duration":10,"image":"01_storyboard/shot_13.jpg","prompt":"shot_13"},
+    {"id":14,"duration":10,"image":"01_storyboard/shot_14.jpg","prompt":"shot_14"},
+    {"id":15,"duration":10,"image":"01_storyboard/shot_15.jpg","prompt":"shot_15"},
+    {"id":16,"duration":9,"image":"01_storyboard/shot_16.jpg","prompt":"shot_16"},
+    {"id":17,"duration":8,"image":"01_storyboard/shot_17.jpg","prompt":"shot_17"}
+  ]
+}
