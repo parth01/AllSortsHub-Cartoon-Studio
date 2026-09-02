@@ -29,8 +29,17 @@ jobs:
       - name: Install Hugging Face client
         run: python3 -m pip install --upgrade pip gradio_client
 
-      - name: Generate Wan 2.2 animation clips (no Replicate token)
+      - name: Verify Hugging Face authentication
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          test -n "$HF_TOKEN"
+          echo "HF_TOKEN is configured for this workflow."
+
+      - name: Generate Wan 2.2 animation clips
         working-directory: master-version/AllSortsHub-Billion 2
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python3 wan_i2v/huggingface_generate.py ${{ inputs.mode }}
 
       - name: Assemble generated animation with audio and captions
