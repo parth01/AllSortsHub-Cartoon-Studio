@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   generate:
@@ -47,6 +48,24 @@ jobs:
           test -n "$HF_TOKEN"
           echo "HF_TOKEN is configured for this workflow."
 
+      - name: Recover previous partial clips
+        if: inputs.mode == 'range'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: master-version/AllSortsHub-Billion 2
+        run: |
+          mkdir -p wan_i2v/generated
+          ARTIFACT_NAME="AllSortsHub-Episode-01-Wan-Progress-${{ inputs.shot_start }}-${{ inputs.shot_end }}"
+          echo "Looking for previous progress artifact: $ARTIFACT_NAME"
+          PREV_RUN=$(gh run list --workflow generate-wan.yml --branch main --limit 20 --json databaseId,status,conclusion --jq '[.[] | select(.databaseId != ('"$GITHUB_RUN_ID"') and (.conclusion == "failure" or .conclusion == "success"))][0].databaseId // empty')
+          if [ -n "$PREV_RUN" ]; then
+            echo "Trying previous workflow run $PREV_RUN"
+            gh run download "$PREV_RUN" --name "$ARTIFACT_NAME" --dir wan_i2v/generated || true
+          else
+            echo "No previous completed run found. Starting fresh."
+          fi
+          find wan_i2v/generated -maxdepth 1 -type f -name '*.mp4' -printf '%f %s bytes\n' | sort || true
+
       - name: Generate Wan 2.2 animation clips
         working-directory: master-version/AllSortsHub-Billion 2
         env:
@@ -55,7 +74,17 @@ jobs:
           SHOT_END: ${{ inputs.shot_end }}
         run: python3 wan_i2v/huggingface_generate.py ${{ inputs.mode }}
 
+      - name: Save generation progress
+        if: always() && inputs.mode == 'range'
+        uses: actions/upload-artifact@v4
+        with:
+          name: AllSortsHub-Episode-01-Wan-Progress-${{ inputs.shot_start }}-${{ inputs.shot_end }}
+          path: master-version/AllSortsHub-Billion 2/wan_i2v/generated/*.mp4
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Upload generated clips
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: AllSortsHub-Episode-01-Wan-Shots-${{ inputs.shot_start }}-${{ inputs.shot_end }}
@@ -64,7 +93,7 @@ jobs:
           retention-days: 30
 
       - name: Assemble selected shots for review
-        if: inputs.mode == 'range'
+        if: success() && inputs.mode == 'range'
         working-directory: master-version/AllSortsHub-Billion 2
         env:
           SHOT_START: ${{ inputs.shot_start }}
@@ -72,16 +101,17 @@ jobs:
         run: python3 wan_i2v/assemble_range.py
 
       - name: Assemble first 3 shots for review
-        if: inputs.mode == 'test3'
+        if: success() && inputs.mode == 'test3'
         working-directory: master-version/AllSortsHub-Billion 2
         run: python3 wan_i2v/assemble_test3.py
 
       - name: Assemble complete episode
-        if: inputs.mode == 'full'
+        if: success() && inputs.mode == 'full'
         working-directory: master-version/AllSortsHub-Billion 2
         run: python3 wan_i2v/assemble_episode.py
 
       - name: Validate outputs
+        if: success()
         working-directory: master-version/AllSortsHub-Billion 2/output
         run: |
           set -e
@@ -96,6 +126,7 @@ jobs:
           ls -lh *.mp4
 
       - name: Upload review video
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: AllSortsHub-Episode-01-Wan-Review-${{ inputs.mode }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
