@@ -146,7 +146,8 @@ def main() -> None:
     GEN.mkdir(parents=True, exist_ok=True)
     print(f"Connecting to authenticated Hugging Face Space runtime: {SPACE}", flush=True)
     print(f"Generating {len(shots)} shot(s) in {mode} mode", flush=True)
-    client = Client(SPACE, hf_token=token, verbose=True)
+    # Current gradio_client uses `token`, not `hf_token`.
+    client = Client(SPACE, token=token, verbose=True)
 
     for shot in shots:
         n = int(shot["id"])
