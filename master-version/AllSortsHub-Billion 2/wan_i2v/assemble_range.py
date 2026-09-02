@@ -83,6 +83,11 @@ def main():
     if not shots:
         raise SystemExit("No shots selected")
 
+    # The repository does not need to contain generated media, so the output
+    # directory may not exist on a fresh GitHub Actions checkout. Create it
+    # before the final ffmpeg write.
+    OUT.mkdir(parents=True, exist_ok=True)
+
     with tempfile.TemporaryDirectory(prefix="wan_range_") as td:
         td = Path(td)
         normalized = []
