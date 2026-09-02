@@ -6,11 +6,11 @@ on:
       backend:
         description: Video generation backend
         required: true
-        default: magichour
+        default: huggingface
         type: choice
         options:
-          - magichour
           - huggingface
+          - magichour
       mode:
         description: Generate a small test, selected shot range, or the complete 17-shot episode
         required: true
@@ -69,13 +69,17 @@ jobs:
           fi
 
       - name: Recover previous partial clips
-        if: inputs.mode == 'range'
+        if: inputs.mode == 'range' || inputs.mode == 'full'
         env:
           GH_TOKEN: ${{ github.token }}
         working-directory: master-version/AllSortsHub-Billion 2
         run: |
           mkdir -p wan_i2v/generated
-          ARTIFACT_NAME="AllSortsHub-Episode-01-Wan-Progress-${{ inputs.shot_start }}-${{ inputs.shot_end }}"
+          if [ "${{ inputs.mode }}" = "range" ]; then
+            ARTIFACT_NAME="AllSortsHub-Episode-01-Wan-Progress-${{ inputs.shot_start }}-${{ inputs.shot_end }}"
+          else
+            ARTIFACT_NAME="AllSortsHub-Episode-01-Wan-Progress-full"
+          fi
           echo "Looking for previous progress artifact: $ARTIFACT_NAME"
           PREV_RUN=$(gh run list --workflow generate-wan.yml --branch main --limit 20 --json databaseId,status,conclusion --jq '[.[] | select(.databaseId != ('"$GITHUB_RUN_ID"') and (.conclusion == "failure" or .conclusion == "success"))][0].databaseId // empty')
           if [ -n "$PREV_RUN" ]; then
@@ -105,10 +109,10 @@ jobs:
         run: python3 wan_i2v/huggingface_generate.py ${{ inputs.mode }}
 
       - name: Save generation progress
-        if: always() && inputs.mode == 'range'
+        if: always() && (inputs.mode == 'range' || inputs.mode == 'full')
         uses: actions/upload-artifact@v4
         with:
-          name: AllSortsHub-Episode-01-Wan-Progress-${{ inputs.shot_start }}-${{ inputs.shot_end }}
+          name: AllSortsHub-Episode-01-Wan-Progress-${{ inputs.mode == 'full' && 'full' || format('{0}-{1}', inputs.shot_start, inputs.shot_end) }}
           path: master-version/AllSortsHub-Billion 2/wan_i2v/generated/*.mp4
           if-no-files-found: ignore
           retention-days: 30
@@ -117,7 +121,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: AllSortsHub-Episode-01-Wan-Shots-${{ inputs.backend }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
+          name: AllSortsHub-Episode-01-Wan-Shots-${{ inputs.backend }}-${{ inputs.mode }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
           path: master-version/AllSortsHub-Billion 2/wan_i2v/generated/*.mp4
           if-no-files-found: error
           retention-days: 30
