@@ -14,7 +14,7 @@ on:
       mode:
         description: Generate a small test, selected shot range, or the complete 17-shot episode
         required: true
-        default: range
+        default: full
         type: choice
         options:
           - test3
@@ -155,8 +155,19 @@ jobs:
           fi
           ls -lh *.mp4
 
+      - name: Upload final Episode 1 video
+        if: success() && inputs.mode == 'full'
+        uses: actions/upload-artifact@v4
+        with:
+          name: AllSortsHub-Episode-01-FINAL
+          path: |
+            master-version/AllSortsHub-Billion 2/output/AllSortsHub_Episode_01_WAN_MASTER.mp4
+            master-version/AllSortsHub-Billion 2/output/AllSortsHub_Episode_01_WAN_VERTICAL_9x16.mp4
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Upload review video
-        if: success()
+        if: success() && inputs.mode != 'full'
         uses: actions/upload-artifact@v4
         with:
           name: AllSortsHub-Episode-01-Wan-Review-${{ inputs.backend }}-${{ inputs.mode }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
