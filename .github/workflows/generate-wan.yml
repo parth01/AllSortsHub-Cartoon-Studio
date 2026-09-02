@@ -1,0 +1,60 @@
+name: Generate Episode 1 — Wan 2.2 AI Animation
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Generate first 3 shots for testing, or the complete 17-shot episode
+        required: true
+        default: test3
+        type: choice
+        options:
+          - test3
+          - full
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: python3 -m pip install --upgrade pip
+
+      - name: Generate Wan 2.2 animation clips
+        working-directory: master-version/AllSortsHub-Billion 2
+        env:
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+        run: python3 wan_i2v/replicate_generate.py ${{ inputs.mode }}
+
+      - name: List generated clips
+        working-directory: master-version/AllSortsHub-Billion 2
+        run: |
+          find wan_i2v/generated -maxdepth 1 -type f -name '*.mp4' -printf '%f %s bytes\n' | sort
+
+      - name: Commit generated clips back to GitHub
+        working-directory: master-version/AllSortsHub-Billion 2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wan_i2v/generated/*.mp4
+          git diff --cached --quiet && echo "No new clips to commit." || git commit -m "Generate Wan 2.2 animation clips (${{ inputs.mode }})"
+          git push
+
+      - name: Upload generated clips as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AllSortsHub-Episode-01-Wan-Clips-${{ inputs.mode }}
+          path: master-version/AllSortsHub-Billion 2/wan_i2v/generated/*.mp4
+          if-no-files-found: error
+          retention-days: 14
