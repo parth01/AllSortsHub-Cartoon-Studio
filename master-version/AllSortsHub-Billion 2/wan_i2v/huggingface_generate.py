@@ -123,16 +123,29 @@ def extract_last_frame(video: Path, image: Path) -> None:
     ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
+def select_shots(shots, mode: str):
+    if mode == "test3":
+        return shots[:3]
+    if mode == "full":
+        return shots
+    if mode == "range":
+        try:
+            start = int(os.environ["SHOT_START"])
+            end = int(os.environ["SHOT_END"])
+        except (KeyError, ValueError):
+            fail("range mode requires SHOT_START and SHOT_END")
+        if start < 1 or end < start or end > len(shots):
+            fail(f"Invalid shot range {start}-{end}; valid range is 1-{len(shots)}")
+        return [s for s in shots if start <= int(s["id"]) <= end]
+    fail("Usage: huggingface_generate.py [test3|full|range]")
+
+
 def main() -> None:
     mode = sys.argv[1] if len(sys.argv) > 1 else "full"
     with MANIFEST.open() as f:
         manifest = json.load(f)
     prompts_text = PROMPTS.read_text()
-    shots = manifest["shots"]
-    if mode == "test3":
-        shots = shots[:3]
-    elif mode != "full":
-        fail("Usage: huggingface_generate.py [test3|full]")
+    shots = select_shots(manifest["shots"], mode)
 
     try:
         from gradio_client import Client
@@ -146,7 +159,6 @@ def main() -> None:
     GEN.mkdir(parents=True, exist_ok=True)
     print(f"Connecting to authenticated Hugging Face Space runtime: {SPACE}", flush=True)
     print(f"Generating {len(shots)} shot(s) in {mode} mode", flush=True)
-    # Current gradio_client uses `token`, not `hf_token`.
     client = Client(SPACE, token=token, verbose=True)
 
     for shot in shots:
