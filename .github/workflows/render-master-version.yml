@@ -1,15 +1,7 @@
-name: Render Master Version Cartoon
+name: Render Episode 1 — Wan 2.2 Assembly
 
 on:
   workflow_dispatch:
-    inputs:
-      quality:
-        description: "Render quality"
-        required: true
-        default: "1080p"
-        type: choice
-        options:
-          - 1080p
 
 permissions:
   contents: read
@@ -17,35 +9,40 @@ permissions:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install FFmpeg
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Install Python dependencies
-        run: python3 -m pip install --upgrade pip pillow
-
-      - name: Render Episode 1
+      - name: Verify Wan-generated clips are present
         working-directory: master-version/AllSortsHub-Billion 2
-        run: python3 render_master.py
+        run: |
+          set -e
+          test -d wan_i2v/generated
+          for n in $(seq -w 1 17); do
+            test -s "wan_i2v/generated/shot_${n}.mp4" || { echo "Missing Wan clip: shot_${n}.mp4"; exit 1; }
+          done
+          echo "All 17 Wan I2V clips found."
+
+      - name: Assemble Wan animation + original audio
+        working-directory: master-version/AllSortsHub-Billion 2
+        run: python3 wan_i2v/assemble_episode.py
 
       - name: Validate outputs
         working-directory: master-version/AllSortsHub-Billion 2/output
         run: |
           set -e
-          test -s AllSortsHub_Episode_01_MASTER.mp4
-          test -s AllSortsHub_Episode_01_VERTICAL_9x16.mp4
+          test -s AllSortsHub_Episode_01_WAN_MASTER.mp4
+          test -s AllSortsHub_Episode_01_WAN_VERTICAL_9x16.mp4
           ls -lh *.mp4
 
-      - name: Upload rendered videos
+      - name: Upload Wan rendered videos
         uses: actions/upload-artifact@v4
         with:
-          name: AllSortsHub-Episode-01-Rendered
-          path: master-version/AllSortsHub-Billion 2/output/*.mp4
+          name: AllSortsHub-Episode-01-Wan-Rendered
+          path: master-version/AllSortsHub-Billion 2/output/*WAN*.mp4
           if-no-files-found: error
           retention-days: 14
