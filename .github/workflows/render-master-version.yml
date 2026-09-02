@@ -1,0 +1,51 @@
+name: Render Master Version Cartoon
+
+on:
+  workflow_dispatch:
+    inputs:
+      quality:
+        description: "Render quality"
+        required: true
+        default: "1080p"
+        type: choice
+        options:
+          - 1080p
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: python3 -m pip install --upgrade pip pillow
+
+      - name: Render Episode 1
+        working-directory: master-version/AllSortsHub-Billion 2
+        run: python3 render_master.py
+
+      - name: Validate outputs
+        working-directory: master-version/AllSortsHub-Billion 2/output
+        run: |
+          set -e
+          test -s AllSortsHub_Episode_01_MASTER.mp4
+          test -s AllSortsHub_Episode_01_VERTICAL_9x16.mp4
+          ls -lh *.mp4
+
+      - name: Upload rendered videos
+        uses: actions/upload-artifact@v4
+        with:
+          name: AllSortsHub-Episode-01-Rendered
+          path: master-version/AllSortsHub-Billion 2/output/*.mp4
+          if-no-files-found: error
+          retention-days: 14
