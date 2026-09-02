@@ -3,6 +3,14 @@ name: Generate Episode 1 — Free Wan 2.2 AI Animation
 on:
   workflow_dispatch:
     inputs:
+      backend:
+        description: Video generation backend
+        required: true
+        default: magichour
+        type: choice
+        options:
+          - magichour
+          - huggingface
       mode:
         description: Generate a small test, selected shot range, or the complete 17-shot episode
         required: true
@@ -15,12 +23,12 @@ on:
       shot_start:
         description: First shot to generate when mode is range (1-17)
         required: false
-        default: "1"
+        default: "4"
         type: string
       shot_end:
         description: Last shot to generate when mode is range (1-17)
         required: false
-        default: "1"
+        default: "4"
         type: string
 
 permissions:
@@ -38,15 +46,27 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Install Hugging Face client
-        run: python3 -m pip install --upgrade pip gradio_client
+      - name: Install generation client
+        run: |
+          python3 -m pip install --upgrade pip
+          if [ "${{ inputs.backend }}" = "magichour" ]; then
+            python3 -m pip install magic_hour
+          else
+            python3 -m pip install gradio_client
+          fi
 
-      - name: Verify Hugging Face authentication
+      - name: Verify generation authentication
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MAGIC_HOUR_API_KEY: ${{ secrets.MAGIC_HOUR_API_KEY }}
         run: |
-          test -n "$HF_TOKEN"
-          echo "HF_TOKEN is configured for this workflow."
+          if [ "${{ inputs.backend }}" = "magichour" ]; then
+            test -n "$MAGIC_HOUR_API_KEY"
+            echo "MAGIC_HOUR_API_KEY is configured."
+          else
+            test -n "$HF_TOKEN"
+            echo "HF_TOKEN is configured."
+          fi
 
       - name: Recover previous partial clips
         if: inputs.mode == 'range'
@@ -66,7 +86,17 @@ jobs:
           fi
           find wan_i2v/generated -maxdepth 1 -type f -name '*.mp4' -printf '%f %s bytes\n' | sort || true
 
-      - name: Generate Wan 2.2 animation clips
+      - name: Generate with Magic Hour Wan 2.2
+        if: inputs.backend == 'magichour'
+        working-directory: master-version/AllSortsHub-Billion 2
+        env:
+          MAGIC_HOUR_API_KEY: ${{ secrets.MAGIC_HOUR_API_KEY }}
+          SHOT_START: ${{ inputs.shot_start }}
+          SHOT_END: ${{ inputs.shot_end }}
+        run: python3 wan_i2v/magichour_generate.py ${{ inputs.mode }}
+
+      - name: Generate with Hugging Face Wan 2.2
+        if: inputs.backend == 'huggingface'
         working-directory: master-version/AllSortsHub-Billion 2
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -87,7 +117,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: AllSortsHub-Episode-01-Wan-Shots-${{ inputs.shot_start }}-${{ inputs.shot_end }}
+          name: AllSortsHub-Episode-01-Wan-Shots-${{ inputs.backend }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
           path: master-version/AllSortsHub-Billion 2/wan_i2v/generated/*.mp4
           if-no-files-found: error
           retention-days: 30
@@ -129,7 +159,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: AllSortsHub-Episode-01-Wan-Review-${{ inputs.mode }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
+          name: AllSortsHub-Episode-01-Wan-Review-${{ inputs.backend }}-${{ inputs.mode }}-${{ inputs.shot_start }}-${{ inputs.shot_end }}
           path: master-version/AllSortsHub-Billion 2/output/*.mp4
           if-no-files-found: error
           retention-days: 30
