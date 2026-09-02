@@ -1,0 +1,58 @@
+EPISODE 01 — WAN 2.2 I2V MOTION PROMPTS
+
+GLOBAL STYLE PREFIX (apply mentally to every shot):
+Modern 2D cel-shaded cartoon animation, bold clean black linework, semi-flat shading, vibrant colors, expressive anime-influenced facial acting, preserve the exact character designs and environment in the input image. Natural hand-drawn animation feel. Keep faces, hair, clothing, proportions, props and background layout consistent with the source frame. Motion should be smooth, readable and physically plausible. No new characters, no redesign, no text changes.
+
+SHOT 01 — 9s
+Ravi sits at his computer looking at the banking screen. His eyes widen as he notices the enormous balance. He leans closer to the monitor, blinks twice, then slowly pulls back in disbelief. Small hand movement toward the keyboard. Subtle monitor glow on his face. End on a shocked expression.
+
+SHOT 02 — 10s
+Ravi remains at the desk, staring at the balance. He slowly raises one hand, points at the screen, then looks toward Max as if asking for confirmation. Max turns toward Ravi and adjusts his round glasses. Both exchange a confused look. Subtle head and shoulder movement, comedic timing.
+
+SHOT 03 — 5s
+Close comedic reaction. Ravi's face shifts from confusion to excited disbelief. His eyebrows rise and his mouth opens slightly. He glances quickly between the monitor and Max. Tiny camera push-in emphasizing the reaction.
+
+SHOT 04 — 9s
+Max urgently gestures for Ravi to stop. Max raises both hands in a warning gesture and shakes his head. Ravi pauses with one hand hovering near the computer. Max leans forward with a serious expression while Ravi looks uncertain. Keep movement restrained and character-consistent.
+
+SHOT 05 — 9s
+Ravi begins imagining what he could buy. His expression becomes excited. He gestures enthusiastically with both hands while Max watches with growing concern. Ravi's head turns slightly as he imagines possibilities. Light comedic body language.
+
+SHOT 06 — 8s
+Fast comedic escalation. Ravi gestures toward the room as if saying he could buy everything. Max reacts with disbelief, briefly facepalming and shaking his head. Ravi grins confidently. Slight energetic camera movement while preserving the source composition.
+
+SHOT 07 — 9s
+Ravi imagines an extravagant lifestyle. He spreads his arms dramatically and looks upward with a huge grin. Max remains skeptical in the background. Add subtle floating celebratory movement and exaggerated facial expression without changing the artwork or introducing new objects.
+
+SHOT 08 — 10s
+Ravi excitedly talks through a grand plan, moving his hands as he lists ideas. Max tries to interrupt and raises one finger to make an important point. Ravi barely notices and keeps gesturing. Strong conversational timing and expressive faces.
+
+SHOT 09 — 10s
+Ravi suddenly becomes inspired and gestures toward the world outside, imagining changing everything with the money. His expression turns heroic and determined. Max looks worried. Slow push toward Ravi's confident face, subtle clothing and hair movement.
+
+SHOT 10 — 8s
+Comedic transition. Ravi turns back toward the computer with renewed excitement and reaches toward the keyboard. Max immediately grabs or reaches toward Ravi's arm to stop him. Both react with exaggerated but clean cartoon motion. End with Ravi looking surprised.
+
+SHOT 11 — 10s
+Noir-style sequence. Ravi and Max are in a tense situation, looking around suspiciously. Ravi slowly turns his head while Max adjusts his glasses and scans the surroundings. Subtle dramatic breathing and eye movement. Keep the original scene composition and dark cinematic mood.
+
+SHOT 12 — 10s
+Ravi looks increasingly nervous. He slowly leans back while Max explains the banking error with a serious expression. Max makes one deliberate hand gesture. Ravi's eyes move toward Max, then back toward the situation. Suspenseful restrained movement.
+
+SHOT 13 — 10s
+The tension increases. Ravi and Max freeze briefly, then react to an alarming realization. Ravi's eyes widen and Max stiffens. Add a very subtle camera push-in and small environmental movement. Maintain the noir tone and exact character design.
+
+SHOT 14 — 10s
+Ravi realizes the money may disappear. His confident expression collapses into shock. He looks down, then rapidly looks back up. Max gives a resigned expression and small shrug. Comedic timing with a brief pause before Ravi's reaction.
+
+SHOT 15 — 10s
+Ravi becomes visibly sad after realizing the lesson. His shoulders lower and his expression softens. He slowly looks down and exhales. Max gives a sympathetic look. Gentle subtle movement, softer pacing, emotional but still family-friendly cartoon acting.
+
+SHOT 16 — 9s
+Ravi suddenly stands or jolts upright in disbelief, throwing his hands upward. Max reacts beside him. Energetic comedic movement, strong facial expression, slight camera shake at the reaction beat. Preserve the original clothing and proportions.
+
+SHOT 17 — 8s
+Final gag. Ravi looks toward the camera with a defeated expression, then gives a tiny embarrassed shrug. Max remains nearby with a knowing expression. Hold the final pose for a beat. End with a clean comedic freeze-like moment and subtle camera pull-back.
+
+NEGATIVE / CONSISTENCY NOTES:
+No photorealism, no 3D CGI, no live action, no extra fingers, no duplicate limbs, no warped faces, no character morphing, no costume changes, no hairstyle changes, no background replacement, no random objects, no random text, no logos, no watermark, no scene cuts inside the generated clip, no sudden camera spins, no extreme deformation.
