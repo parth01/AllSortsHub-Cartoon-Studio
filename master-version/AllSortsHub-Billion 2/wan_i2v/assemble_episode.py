@@ -3,6 +3,8 @@
 
 Each shot may be supplied as either generated/shot_XX.mp4 or, for shots longer
 than the 5-second generation target, generated/shot_XXa.mp4 + shot_XXb.mp4.
+If an old short shot_XX.mp4 exists alongside a/b segments, the segmented clips
+are preferred when they provide enough duration for the manifest target.
 """
 from pathlib import Path
 import json
@@ -34,16 +36,26 @@ def ffprobe_duration(path):
     return float(p.stdout.strip())
 
 
-def source_parts(n):
+def source_parts(n, target):
     single = GEN / f"shot_{n:02d}.mp4"
     a = GEN / f"shot_{n:02d}a.mp4"
     b = GEN / f"shot_{n:02d}b.mp4"
+
+    # Prefer segmented generation when present. This prevents an old 2-second
+    # shot_XX.mp4 from masking the newer 5s + continuation clips.
+    parts = [p for p in (a, b) if p.exists() and p.stat().st_size]
+    if parts:
+        # If both segments exist, use both. If only a exists and it is long
+        # enough for the target, it is also a valid source.
+        if len(parts) == 2:
+            return parts
+        if ffprobe_duration(parts[0]) + 0.05 >= target:
+            return parts
+
     if single.exists() and single.stat().st_size:
         return [single]
-    parts = [p for p in (a, b) if p.exists() and p.stat().st_size]
-    if not parts:
-        raise SystemExit(f"Missing Wan clip for shot {n:02d}. Expected {single.name} or {a.name} + {b.name}.")
-    return parts
+
+    raise SystemExit(f"Missing Wan clip for shot {n:02d}. Expected {single.name} or {a.name} + {b.name}.")
 
 
 def prepare_source(parts, out):
@@ -56,10 +68,11 @@ def prepare_source(parts, out):
     return joined, ffprobe_duration(joined)
 
 
-def normalize(parts, target, out):
+def normalize(n, target, out):
+    parts = source_parts(n, target)
     src, src_dur = prepare_source(parts, out)
     if src_dur + 0.05 < target:
-        raise SystemExit(f"Wan source for {out.stem} is only {src_dur:.2f}s but needs {target:.2f}s.")
+        raise SystemExit(f"Wan source for {out.stem} is only {src_dur:.2f}s but needs {target:.2f}s. Found: {', '.join(p.name for p in parts)}")
     run(["ffmpeg", "-y", "-i", src, "-vf", f"scale={W}:{H}:force_original_aspect_ratio=decrease,pad={W}:{H}:(ow-iw)/2:(oh-ih)/2,setsar=1", "-r", "30", "-t", f"{target:.3f}", "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", out])
     return src_dur
 
@@ -108,7 +121,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="wan_episode_") as td:
         td=Path(td); normalized=[]
         for shot in shots:
-            n=int(shot["id"]); target=float(shot["duration"]); out=td/f"shot_{n:02d}.mp4"; src_dur=normalize(source_parts(n),target,out); normalized.append(out); print(f"WAN: shot_{n:02d} {src_dur:.2f}s source -> {target:.2f}s final")
+            n=int(shot["id"]); target=float(shot["duration"]); out=td/f"shot_{n:02d}.mp4"; src_dur=normalize(n,target,out); normalized.append(out); print(f"WAN: shot_{n:02d} {src_dur:.2f}s source -> {target:.2f}s final")
         concat_file=td/"concat.txt"; concat_file.write_text("".join(f"file '{p.as_posix()}'\n" for p in normalized)); picture=td/"picture.mp4"; run(["ffmpeg","-y","-f","concat","-safe","0","-i",concat_file,"-c","copy",picture]); mixed=td/"mixed.mp4"; add_audio(picture,mixed); master=OUT/"AllSortsHub_Episode_01_WAN_MASTER.mp4"; burn_captions(mixed,master); vertical=OUT/"AllSortsHub_Episode_01_WAN_VERTICAL_9x16.mp4"; make_vertical(master,vertical); print(f"Done. WAN master: {master}")
 
 if __name__=="__main__": main()
