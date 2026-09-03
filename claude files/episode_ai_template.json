@@ -1,0 +1,24 @@
+{
+  "title": "AllSortsHub_Episode_02",
+  "scenes": [
+    {
+      "image": "scene01_bedroom.png",
+      "narration": "Ravi woke up on an ordinary Tuesday, completely unaware that his whole life was about to change before lunch.",
+      "voice": "en-US-GuyNeural",
+      "pan": "right"
+    },
+    {
+      "image": "scene02_letter.png",
+      "narration": "On the kitchen table sat a plain envelope with no return address, and inside it was a single typed sentence that made no sense at all.",
+      "subtitle": "A strange letter. No sender. One sentence.",
+      "voice": "en-US-GuyNeural",
+      "pan": "left"
+    },
+    {
+      "image": "scene03_bank.png",
+      "narration": "By the time he reached the bank, a line of reporters was already waiting outside, and none of them would say why.",
+      "voice": "en-US-GuyNeural",
+      "pan": "down"
+    }
+  ]
+}
